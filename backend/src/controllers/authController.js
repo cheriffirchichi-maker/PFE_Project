@@ -15,7 +15,6 @@ const register = async (req, res) => {
       });
     }
 
-    // Autoriser seulement employe ou responsable à l'inscription normale
     const allowedRoles = ["employe", "responsable"];
 
     if (role && !allowedRoles.includes(role)) {
@@ -34,12 +33,19 @@ const register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+
     const user = await User.create({
       first_name,
       last_name,
       email,
       password: hashedPassword,
       role: role || "employe",
+      email_verified: false,
+      otp_code: otpCode,
+      otp_expires: otpExpires,
     });
 
     await Log.create({
@@ -48,35 +54,35 @@ const register = async (req, res) => {
       description: `Création du compte ${user.email}`,
     });
 
-    // Email de bienvenue à l'utilisateur inscrit
     await sendEmail({
       to: user.email,
-      subject: "Bienvenue sur PFE BI Platform",
+      subject: "Code de vérification - PFE BI Platform",
       html: `
-        <h2>Bienvenue ${user.first_name} ${user.last_name}</h2>
+        <h2>Vérification de votre email</h2>
+        <p>Bonjour ${user.first_name} ${user.last_name},</p>
         <p>Votre compte a été créé avec succès.</p>
-        <p>Vous pouvez maintenant accéder à la plateforme décisionnelle.</p>
-        <p><strong>Email :</strong> ${user.email}</p>
-        <p><strong>Rôle :</strong> ${user.role}</p>
+        <p>Veuillez utiliser le code suivant pour vérifier votre adresse email :</p>
+        <h1 style="letter-spacing: 4px;">${otpCode}</h1>
+        <p>Ce code est valable pendant 10 minutes.</p>
       `,
     });
 
-    // Email de notification à l'admin
     await sendEmail({
       to: process.env.ADMIN_EMAIL,
-      subject: "Nouvelle inscription sur PFE BI Platform",
+      subject: "Nouvelle inscription en attente de vérification",
       html: `
         <h2>Nouvelle inscription</h2>
-        <p>Un nouveau compte vient d'être créé sur la plateforme.</p>
+        <p>Un nouveau compte vient d'être créé.</p>
         <p><strong>Nom :</strong> ${user.first_name} ${user.last_name}</p>
         <p><strong>Email :</strong> ${user.email}</p>
         <p><strong>Rôle :</strong> ${user.role}</p>
-        <p><strong>Date :</strong> ${new Date().toLocaleString("fr-FR")}</p>
+        <p><strong>Email vérifié :</strong> Non</p>
       `,
     });
 
     return res.status(201).json({
-      message: "Utilisateur créé avec succès. Un email a été envoyé.",
+      message: "Utilisateur créé avec succès. Un code OTP a été envoyé par email.",
+      email: user.email,
     });
   } catch (error) {
     return res.status(500).json({
@@ -85,6 +91,133 @@ const register = async (req, res) => {
     });
   }
 };
+
+const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp_code } = req.body;
+
+    if (!email || !otp_code) {
+      return res.status(400).json({
+        message: "Email et code OTP obligatoires.",
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Utilisateur introuvable.",
+      });
+    }
+
+    if (user.email_verified) {
+      return res.status(400).json({
+        message: "Cet email est déjà vérifié.",
+      });
+    }
+
+    if (user.otp_code !== otp_code) {
+      return res.status(400).json({
+        message: "Code OTP incorrect.",
+      });
+    }
+
+    if (!user.otp_expires || user.otp_expires < new Date()) {
+      return res.status(400).json({
+        message: "Code OTP expiré. Veuillez demander un nouveau code.",
+      });
+    }
+
+    user.email_verified = true;
+    user.otp_code = null;
+    user.otp_expires = null;
+
+    await user.save();
+
+    await Log.create({
+      user_id: user._id,
+      action: "Vérification email",
+      description: `Email vérifié pour le compte ${user.email}`,
+    });
+
+    await sendEmail({
+      to: process.env.ADMIN_EMAIL,
+      subject: "Email utilisateur vérifié",
+      html: `
+        <h2>Email vérifié</h2>
+        <p>L'utilisateur suivant a vérifié son adresse email :</p>
+        <p><strong>Nom :</strong> ${user.first_name} ${user.last_name}</p>
+        <p><strong>Email :</strong> ${user.email}</p>
+        <p><strong>Rôle :</strong> ${user.role}</p>
+      `,
+    });
+
+    return res.json({
+      message: "Email vérifié avec succès. Vous pouvez maintenant vous connecter.",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Erreur serveur.",
+      error: error.message,
+    });
+  }
+};
+
+const resendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        message: "Email obligatoire.",
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Utilisateur introuvable.",
+      });
+    }
+
+    if (user.email_verified) {
+      return res.status(400).json({
+        message: "Cet email est déjà vérifié.",
+      });
+    }
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+    user.otp_code = otpCode;
+    user.otp_expires = otpExpires;
+
+    await user.save();
+
+    await sendEmail({
+      to: user.email,
+      subject: "Nouveau code de vérification - PFE BI Platform",
+      html: `
+        <h2>Nouveau code OTP</h2>
+        <p>Bonjour ${user.first_name},</p>
+        <p>Votre nouveau code de vérification est :</p>
+        <h1 style="letter-spacing: 4px;">${otpCode}</h1>
+        <p>Ce code est valable pendant 10 minutes.</p>
+      `,
+    });
+
+    return res.json({
+      message: "Nouveau code OTP envoyé avec succès.",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Erreur serveur.",
+      error: error.message,
+    });
+  }
+};
+
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -102,6 +235,11 @@ const login = async (req, res) => {
         message: "Compte désactivé. Contactez l’administrateur.",
       });
     }
+    if (!user.email_verified) {
+      return res.status(403).json({
+        message: "Veuillez vérifier votre adresse email avant de vous connecter.",
+     });
+}
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
@@ -174,4 +312,6 @@ module.exports = {
   register,
   login,
   getProfile,
+  verifyOtp,
+  resendOtp,
 };
