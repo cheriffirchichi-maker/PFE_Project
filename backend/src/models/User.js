@@ -30,9 +30,9 @@ const userSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["active", "inactive"],
-      default: "active",
-    },
+      enum: ["pending", "active", "inactive", "rejected"],
+      default: "pending",
+},
     email_verified: {
       type: Boolean,
       default: false,

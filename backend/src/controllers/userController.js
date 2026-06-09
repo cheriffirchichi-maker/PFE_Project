@@ -168,6 +168,53 @@ const changeUserStatus = async (req, res) => {
     });
   }
 };
+const approveUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { status: "active" },
+      { new: true }
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur introuvable." });
+    }
+
+    res.json({
+      message: "Utilisateur approuvé avec succès.",
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Erreur serveur.",
+      error: error.message,
+    });
+  }
+};
+
+const rejectUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { status: "rejected" },
+      { new: true }
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur introuvable." });
+    }
+
+    res.json({
+      message: "Utilisateur refusé avec succès.",
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Erreur serveur.",
+      error: error.message,
+    });
+  }
+};
 
 module.exports = {
   getAllUsers,
@@ -175,4 +222,6 @@ module.exports = {
   updateUser,
   deleteUser,
   changeUserStatus,
+  approveUser,
+  rejectUser,
 };

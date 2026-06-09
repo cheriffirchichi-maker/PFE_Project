@@ -34,7 +34,6 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
     const user = await User.create({
@@ -43,15 +42,20 @@ const register = async (req, res) => {
       email,
       password: hashedPassword,
       role: role || "employe",
+
+      // Vérification email
       email_verified: false,
       otp_code: otpCode,
       otp_expires: otpExpires,
+
+      // Sécurité : compte non actif après inscription
+      status: "pending",
     });
 
     await Log.create({
       user_id: user._id,
       action: "Création utilisateur",
-      description: `Création du compte ${user.email}`,
+      description: `Création du compte ${user.email} avec statut pending`,
     });
 
     await sendEmail({
@@ -60,29 +64,50 @@ const register = async (req, res) => {
       html: `
         <h2>Vérification de votre email</h2>
         <p>Bonjour ${user.first_name} ${user.last_name},</p>
+
         <p>Votre compte a été créé avec succès.</p>
+
         <p>Veuillez utiliser le code suivant pour vérifier votre adresse email :</p>
-        <h1 style="letter-spacing: 4px;">${otpCode}</h1>
+
+        <h1 style="letter-spacing: 4px; color: #5f00b5;">${otpCode}</h1>
+
         <p>Ce code est valable pendant 10 minutes.</p>
+
+        <p>
+          Après la vérification de votre email, votre compte restera en attente
+          jusqu’à l’approbation par l’administrateur.
+        </p>
       `,
     });
 
-    await sendEmail({
-      to: process.env.ADMIN_EMAIL,
-      subject: "Nouvelle inscription en attente de vérification",
-      html: `
-        <h2>Nouvelle inscription</h2>
-        <p>Un nouveau compte vient d'être créé.</p>
-        <p><strong>Nom :</strong> ${user.first_name} ${user.last_name}</p>
-        <p><strong>Email :</strong> ${user.email}</p>
-        <p><strong>Rôle :</strong> ${user.role}</p>
-        <p><strong>Email vérifié :</strong> Non</p>
-      `,
-    });
+    if (process.env.ADMIN_EMAIL) {
+      await sendEmail({
+        to: process.env.ADMIN_EMAIL,
+        subject: "Nouvelle inscription en attente d’approbation",
+        html: `
+          <h2>Nouvelle inscription</h2>
+
+          <p>Un nouveau compte vient d'être créé sur la plateforme.</p>
+
+          <p><strong>Nom :</strong> ${user.first_name} ${user.last_name}</p>
+          <p><strong>Email :</strong> ${user.email}</p>
+          <p><strong>Rôle demandé :</strong> ${user.role}</p>
+          <p><strong>Email vérifié :</strong> Non</p>
+          <p><strong>Statut du compte :</strong> En attente d’approbation</p>
+
+          <p>
+            Veuillez vous connecter à l’espace administrateur pour approuver
+            ou refuser cette inscription.
+          </p>
+        `,
+      });
+    }
 
     return res.status(201).json({
-      message: "Utilisateur créé avec succès. Un code OTP a été envoyé par email.",
+      message:
+        "Compte créé avec succès. Un code OTP a été envoyé par email. Après vérification, votre compte devra être approuvé par l’administrateur.",
       email: user.email,
+      status: user.status,
     });
   } catch (error) {
     return res.status(500).json({
@@ -222,6 +247,12 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email et mot de passe sont obligatoires.",
+      });
+    }
+
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -230,22 +261,42 @@ const login = async (req, res) => {
       });
     }
 
-    if (user.status !== "active") {
-      return res.status(403).json({
-        message: "Compte désactivé. Contactez l’administrateur.",
-      });
-    }
-    if (!user.email_verified) {
-      return res.status(403).json({
-        message: "Veuillez vérifier votre adresse email avant de vous connecter.",
-     });
-}
-
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       return res.status(401).json({
         message: "Email ou mot de passe incorrect.",
+      });
+    }
+
+    if (!user.email_verified) {
+      return res.status(403).json({
+        message: "Veuillez vérifier votre adresse email avant de vous connecter.",
+      });
+    }
+
+    if (user.status === "pending") {
+      return res.status(403).json({
+        message:
+          "Votre compte est en attente d’approbation par l’administrateur.",
+      });
+    }
+
+    if (user.status === "rejected") {
+      return res.status(403).json({
+        message: "Votre demande d’inscription a été refusée.",
+      });
+    }
+
+    if (user.status === "inactive") {
+      return res.status(403).json({
+        message: "Votre compte est désactivé. Contactez l’administrateur.",
+      });
+    }
+
+    if (user.status !== "active") {
+      return res.status(403).json({
+        message: "Statut du compte invalide. Contactez l’administrateur.",
       });
     }
 
@@ -266,7 +317,7 @@ const login = async (req, res) => {
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: process.env.JWT_EXPIRES_IN,
+        expiresIn: process.env.JWT_EXPIRES_IN || "1d",
       }
     );
 
@@ -279,6 +330,8 @@ const login = async (req, res) => {
         last_name: user.last_name,
         email: user.email,
         role: user.role,
+        status: user.status,
+        email_verified: user.email_verified,
       },
     });
   } catch (error) {

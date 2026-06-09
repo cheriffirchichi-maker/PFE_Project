@@ -21,10 +21,12 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+          {/* Routes publiques */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/verify-otp" element={<VerifyOtp />} />
 
+          {/* Routes protégées après connexion */}
           <Route
             path="/"
             element={
@@ -34,11 +36,12 @@ function App() {
             }
           >
             <Route index element={<Home />} />
-            <Route path="powerbi" element={<PowerBI />} />
             <Route path="company" element={<Company />} />
-            <Route path="profile" element={<Profile />} />
+            <Route path="powerbi" element={<PowerBI />} />
             <Route path="prediction" element={<Prediction />} />
+            <Route path="profile" element={<Profile />} />
 
+            {/* Admin seulement */}
             <Route
               path="users"
               element={
@@ -49,6 +52,7 @@ function App() {
             />
           </Route>
 
+          {/* Redirection si URL inconnue */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
