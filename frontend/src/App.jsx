@@ -12,6 +12,7 @@ import Users from "./pages/Users";
 import PowerBI from "./pages/PowerBI";
 import Company from "./pages/Company";
 import Profile from "./pages/Profile";
+import Prediction from "./pages/Prediction";
 
 import "./App.css";
 
@@ -36,6 +37,7 @@ function App() {
             <Route path="powerbi" element={<PowerBI />} />
             <Route path="company" element={<Company />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="prediction" element={<Prediction />} />
 
             <Route
               path="users"

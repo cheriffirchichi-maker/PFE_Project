@@ -1,5 +1,13 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { BarChart3, Building2, Home, LogOut, UserCircle, Users } from "lucide-react";
+import {
+  BarChart3,
+  Brain,
+  Building2,
+  Home,
+  LogOut,
+  UserCircle,
+  Users,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
@@ -18,7 +26,10 @@ const Navbar = () => {
     <header className="top-header">
       <div className="top-bar">
         <div className="brand">
-          <div className="brand-logo">M</div>
+          <div className="brand-logo brand-logo-image">
+            <img src="/images/mantu-logo.png" alt="Mantu Logo" />
+          </div>
+
           <div>
             <h2>BI Platform</h2>
             <span>Business Intelligence Portal</span>
@@ -27,7 +38,9 @@ const Navbar = () => {
 
         <div className="top-user">
           <div className="user-mini">
-            <strong>{user?.first_name} {user?.last_name}</strong>
+            <strong>
+              {user?.first_name} {user?.last_name}
+            </strong>
             <span>{user?.role}</span>
           </div>
 
@@ -52,6 +65,14 @@ const Navbar = () => {
         <Link className={isActive("/powerbi") ? "active" : ""} to="/powerbi">
           <BarChart3 size={18} />
           Power BI
+        </Link>
+
+        <Link
+          className={isActive("/prediction") ? "active" : ""}
+          to="/prediction"
+        >
+          <Brain size={18} />
+          Prédiction ML
         </Link>
 
         {user?.role === "admin" && (

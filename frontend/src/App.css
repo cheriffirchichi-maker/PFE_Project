@@ -793,3 +793,459 @@ body {
   display: block;
   background: #f3f4f6;
 }
+/* =========================
+   PREDICTION ML PAGE
+========================= */
+
+.prediction-layout {
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.prediction-form,
+.prediction-result-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 26px;
+  box-shadow: 0 12px 30px rgba(31, 42, 68, 0.08);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.prediction-form button {
+  margin-top: 24px;
+  width: 100%;
+}
+
+.prediction-result-card {
+  position: sticky;
+  top: 160px;
+  height: fit-content;
+}
+
+.result-badge {
+  display: inline-block;
+  background: #efeafd;
+  color: var(--purple);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.prediction-result-card h2 {
+  color: var(--primary);
+  margin: 0 0 12px;
+}
+
+.prediction-value {
+  font-size: 64px;
+  font-weight: 900;
+  color: var(--purple);
+  margin: 26px 0 10px;
+}
+
+.prediction-result-card p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+@media (max-width: 1000px) {
+  .prediction-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .prediction-result-card {
+    position: static;
+  }
+}
+
+@media (max-width: 700px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* =========================
+   MANTU LOGO FIX
+========================= */
+
+.auth-card-with-logo::before {
+  display: none;
+}
+
+.auth-logo-wrapper {
+  width: 120px;
+  height: 86px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.auth-logo-wrapper img {
+  width: 115px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.brand-logo-image {
+  width: 78px;
+  height: 56px;
+  background: white;
+  padding: 8px;
+  border-radius: 18px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+}
+
+.brand-logo-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+/* =========================
+   MANTU COMPANY PAGE
+========================= */
+
+.mantu-page {
+  background: #f6f7fb;
+}
+
+.mantu-hero {
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 28px;
+  align-items: center;
+  min-height: 360px;
+  padding: 46px;
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.18), transparent 28%),
+    linear-gradient(135deg, #2b003d 0%, #5e0bb8 48%, #8c31ff 100%);
+  color: white;
+  box-shadow: 0 20px 48px rgba(31, 42, 68, 0.16);
+  overflow: hidden;
+}
+
+.mantu-chip,
+.mantu-kicker {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+}
+
+.mantu-hero-content h1 {
+  color: white;
+  font-size: 52px;
+  line-height: 1.05;
+  margin: 16px 0;
+}
+
+.mantu-hero-content p {
+  max-width: 760px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.85;
+  font-size: 16px;
+}
+
+.mantu-hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 26px;
+}
+
+.mantu-hero-actions a {
+  padding: 13px 18px;
+  border-radius: 14px;
+  background: white;
+  color: #5f00b5;
+  font-weight: 900;
+}
+
+.mantu-hero-actions a.outline {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.mantu-hero-card {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 28px;
+  padding: 34px;
+  backdrop-filter: blur(12px);
+  text-align: center;
+}
+
+.mantu-hero-card img {
+  width: 170px;
+  height: auto;
+  margin-bottom: 22px;
+  background: white;
+  border-radius: 26px;
+  padding: 20px;
+}
+
+.mantu-hero-card h3 {
+  color: white;
+  margin: 0 0 8px;
+  font-size: 28px;
+}
+
+.mantu-hero-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.mantu-section {
+  margin-top: 40px;
+}
+
+.mantu-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.mantu-stat-card,
+.mantu-mission-card,
+.mantu-value-card,
+.mantu-leader-card,
+.mantu-office-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  padding: 26px;
+  box-shadow: 0 12px 32px rgba(31, 42, 68, 0.08);
+}
+
+.mantu-stat-card {
+  text-align: center;
+  transition: 0.2s ease;
+}
+
+.mantu-stat-card:hover,
+.mantu-value-card:hover,
+.mantu-leader-card:hover,
+.mantu-office-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 42px rgba(31, 42, 68, 0.13);
+}
+
+.mantu-stat-icon,
+.mantu-value-icon {
+  color: #6d19d9;
+  margin-bottom: 12px;
+}
+
+.mantu-stat-card h3 {
+  color: #6d19d9;
+  margin: 0 0 8px;
+  font-size: 34px;
+}
+
+.mantu-stat-card h4 {
+  margin: 0 0 10px;
+  color: var(--primary);
+  font-size: 16px;
+}
+
+.mantu-stat-card p,
+.mantu-value-card p,
+.mantu-mission-card p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.mantu-mission-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 22px;
+}
+
+.mantu-mission-card h2 {
+  color: var(--primary);
+  font-size: 32px;
+  margin: 12px 0;
+}
+
+.mantu-mission-card .mantu-kicker {
+  background: #efeafd;
+  color: #5f00b5;
+}
+
+.mantu-image-card {
+  min-height: 330px;
+  border-radius: 26px;
+  overflow: hidden;
+  background: #efeafd;
+  box-shadow: 0 12px 32px rgba(31, 42, 68, 0.08);
+}
+
+.mantu-image-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mantu-values-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.mantu-value-card h3 {
+  color: var(--primary);
+  margin: 10px 0;
+}
+
+/* Leaders */
+
+.mantu-leaders-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.mantu-leader-card {
+  text-align: center;
+  padding: 22px;
+}
+
+.mantu-leader-image {
+  height: 260px;
+  border-radius: 22px;
+  background: #efeafd;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.mantu-leader-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mantu-leader-card h3 {
+  margin: 0 0 6px;
+  color: var(--primary);
+  font-size: 18px;
+}
+
+.mantu-leader-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* Offices */
+
+.mantu-offices-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.mantu-office-card {
+  padding: 18px;
+}
+
+.mantu-office-image {
+  height: 220px;
+  border-radius: 22px;
+  background: #efeafd;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.mantu-office-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.office-location {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.office-location svg {
+  color: #6d19d9;
+}
+
+.office-location h3 {
+  margin: 0 0 4px;
+  color: var(--primary);
+}
+
+.office-location p {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* Brands */
+
+.mantu-brands-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.mantu-brands-list span {
+  background: white;
+  color: #5f00b5;
+  border: 1px solid var(--border);
+  padding: 11px 16px;
+  border-radius: 999px;
+  font-weight: 800;
+  box-shadow: 0 8px 20px rgba(31, 42, 68, 0.06);
+}
+
+/* Responsive */
+
+@media (max-width: 1200px) {
+  .mantu-hero,
+  .mantu-mission-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mantu-stats-grid,
+  .mantu-values-grid,
+  .mantu-leaders-grid,
+  .mantu-offices-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .mantu-hero {
+    padding: 28px;
+  }
+
+  .mantu-hero-content h1 {
+    font-size: 36px;
+  }
+
+  .mantu-stats-grid,
+  .mantu-values-grid,
+  .mantu-leaders-grid,
+  .mantu-offices-grid {
+    grid-template-columns: 1fr;
+  }
+}

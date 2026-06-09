@@ -13,6 +13,7 @@ const Login = () => {
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({
@@ -24,6 +25,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
       const res = await api.post("/auth/login", form);
@@ -31,13 +33,19 @@ const Login = () => {
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "Erreur de connexion.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="auth-page">
-      <div className="auth-card">
-        <h1>PFE BI Platform</h1>
+      <div className="auth-card auth-card-with-logo">
+        <div className="auth-logo-wrapper">
+          <img src="/images/mantu-logo.png" alt="Mantu Logo" />
+        </div>
+
+        <h1>BI Platform</h1>
         <p>Connexion à la plateforme décisionnelle</p>
 
         {error && <div className="error">{error}</div>}
@@ -50,6 +58,7 @@ const Login = () => {
             placeholder="exemple@gmail.com"
             value={form.email}
             onChange={handleChange}
+            required
           />
 
           <label>Mot de passe</label>
@@ -59,9 +68,12 @@ const Login = () => {
             placeholder="Votre mot de passe"
             value={form.password}
             onChange={handleChange}
+            required
           />
 
-          <button type="submit">Se connecter</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Connexion..." : "Se connecter"}
+          </button>
         </form>
 
         <p className="auth-link">
